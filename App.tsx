@@ -1,28 +1,26 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useMemo, useState } from 'react';
+import { Provider as PaperProvider, Portal } from 'react-native-paper';
+import { SnackbarProvider } from './src/components/snackbar-provider';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import AppNavigator from './src/navigation/app-navigator';
+import { combineThemes, createPaperTheme, NavigationDarkTheme, NavigationDefaultTheme } from './src/themes';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const paperTheme = useMemo(() => createPaperTheme(isDarkMode), [isDarkMode]);
+
+  const navigationTheme = isDarkMode ? NavigationDarkTheme : NavigationDefaultTheme;
+
+  const combinedTheme = useMemo(() => combineThemes(navigationTheme, paperTheme), [navigationTheme, paperTheme]);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <PaperProvider theme={paperTheme}>
+      <Portal.Host>
+        <SnackbarProvider>
+          <AppNavigator isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} combinedTheme={combinedTheme} />
+        </SnackbarProvider>
+      </Portal.Host>
+    </PaperProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;
